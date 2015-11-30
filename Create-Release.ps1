@@ -28,21 +28,26 @@ function Create-Release
     Begin
     {
         Write-Verbose "Begin Release Creation"
-        $Exclusions = Get-Content($ExcludeFile)
+        [string[]]$Exclusions
+        if($ExcludeFile.Length > 0){
+            $Exclusions = Get-Content($ExcludeFile)
+        }
         
         Write-Output $temp
-        $Source = Join-Path (Get-Location) $Source
+        $Source = Join-Path (Get-Location) $Source -Resolve
         Write-Output $Source
         Write-Verbose "Process Release Creation"
         $temp = New-Item .\Temporary -ItemType directory 
-        Get-ChildItem $Source -Recurse -Exclude $Exclusions | Copy-Item -Destination { Join-Path $temp.FullName $_.FullName.Substring($source.length - 1)}
+        Get-ChildItem $Source -Recurse -Exclude $Exclusions | Copy-Item -Destination { Join-Path $temp.FullName $_.FullName.Substring($source.length)}
+        Write-Zip -Path $temp.FullName -OutputPath $Destination
     }
     Process
     {
+        
     }
     End
     {  
-        #Remove-Item .\Temporary -Recurse
+        Remove-Item .\Temporary -Recurse
         #Write-Output "Release Created at $Destination"
         #Write-Verbose "End Release Creation"
     }
